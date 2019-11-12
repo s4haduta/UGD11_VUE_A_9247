@@ -2,7 +2,7 @@
     <v-container>   
         <v-card>
             <v-container grid-list-md mb-0>
-                <h2 class="text-md-center">Data User</h2> 
+                <h2 class="text-md-center">Data sparepart</h2> 
                 <v-layout row wrap style="margin:10px">
                     <v-flex xs6>
                         <v-btn depressed 
@@ -13,7 +13,7 @@
                         @click="dialog = true"
                         >
                         <v-icon size="18" class="mr-2">mdi-pencil-plus</v-icon> 
-                            Tambah User
+                            Tambah sparepart
                         </v-btn>
                     </v-flex>
                     <v-flex xs6 class="text-right">
@@ -28,7 +28,7 @@
 
                 <v-data-table
                     :headers="headers"
-                    :items="users"
+                    :items="spareparts"
                     :search="keyword"
                     :loading="load"
                 >
@@ -38,8 +38,10 @@
                         <tr v-for="(item,index) in items" :key="item.id"> 
                             <td>{{ index + 1 }}</td>
                             <td>{{ item.name }}</td>
-                            <td>{{ item.email}}</td>
-                            <td>{{ item.password }}</td>
+                            <td>{{ item.merk}}</td>
+                            <td>{{ item.brand}}</td>
+                            <td>{{ item.amount}}</td>
+                            <td>{{ item.created_at}}</td>
                             <td class="text-center">
                                 <v-btn 
                                 icon 
@@ -66,7 +68,7 @@
     </v-card>
     <v-dialog v-model="dialog" persistent max-width="600px"> <v-card>
         <v-card-title>
-            <span class="headline">User Profile</span>
+            <span class="headline">sparepart Profile</span>
         </v-card-title>
         <v-card-text>
             <v-container>
@@ -75,10 +77,16 @@
                         <v-text-field label="Name*" v-model="form.name" required></v-text-field>
                     </v-col>
                     <v-col cols="12">
-                        <v-text-field label="Email*" v-model="form.email" required></v-text-field> 
+                        <v-select :items="dropdown_font" label="Merk" target="#dropdown-example" v-model="form.merk"></v-select>
                     </v-col>
                     <v-col cols="12">
-                        <v-text-field label="Password*" v-model="form.password" type="password" required></v-text-field>
+                        <v-text-field label="brand*" v-model="form.brand"  required></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field label="amount*" v-model="form.amount"  required></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field label="created_at*" v-model="form.created_at"  required></v-text-field>
                     </v-col>
                 </v-row>
             </v-container>
@@ -126,29 +134,40 @@ export default {
                     value: 'name'
                     },
                     {
-                    text: 'Email',
-                    value: 'email'
+                    text: 'Merk',
+                    value: 'merk'
                     },
                     {
-                    text: 'Password',
-                    value: 'password'
+                    text: 'Brand',
+                    value: 'brand'
+                    },
+                    {
+                    text: 'amount',
+                    value: 'amount'
+                    },
+                    {
+                    text: 'created_at',
+                    value: 'created_at'
                     },
                     {
                     text: 'Aksi',
                     value: null
                     },  
             ],
-            users: [],
+            dropdown_font: ['Yamaha', 'Honda', 'Suzuki'],
+            spareparts: [],
             snackbar: false,
             color: null,
             text: '',
             load: false,
             form: {
                 name : '',
-                email : '',
-                password : ''
+                merk : '',
+                brand : '',
+                amount : '',
+                created_at : '',
             },
-            user : new FormData,
+            sparepart : new FormData,
             typeInput: 'new',
             errors : '',
             updatedId : '',
@@ -156,25 +175,27 @@ export default {
     },
     methods:{
         getData(){
-            var uri = this.$apiUrl + '/user'
+            var uri = this.$apiUrl + '/sparepart'
             this.$http.get(uri).then(response =>{
-                this.users=response.data.message
+                this.spareparts=response.data.message
         })
     },
 
         sendData(){
-            this.user.append('name', this.form.name);
-            this.user.append('email', this.form.email);
-            this.user.append('password', this.form.password);
-            var uri =this.$apiUrl + '/user'
+            this.sparepart.append('name', this.form.name);
+            this.sparepart.append('merk', this.form.merk);
+            this.sparepart.append('brand', this.form.brand);
+            this.sparepart.append('amount', this.form.brand);
+            this.sparepart.append('created_at', this.form.brand);
+            var uri =this.$apiUrl + '/sparepart'
             this.load = true
-            this.$http.post(uri,this.user).then(response =>{
+            this.$http.post(uri,this.sparepart).then(response =>{
                 this.snackbar = true; //mengaktifkan snackbar
                 this.color = 'green'; //memberi warna snackbar
                 this.text = response.data.message; //memasukkan pesan ke snackbar
                 this.load = false;
                 this.dialog = false
-                this.getData(); //mengambil data user
+                this.getData(); //mengambil data sparepart
                 this.resetForm();
             }).catch(error =>{
                 this.errors = error
@@ -186,17 +207,19 @@ export default {
     },
 
         updateData(){
-            this.user.append('name', this.form.name);
-            this.user.append('email', this.form.email);
-            this.user.append('password', this.form.password);
-            var uri = this.$apiUrl + '/user/' + this.updatedId;
+            this.sparepart.append('name', this.form.name);
+            this.sparepart.append('merk', this.form.merk);
+            this.sparepart.append('brand', this.form.brand);
+            this.sparepart.append('amount', this.form.brand);
+            this.sparepart.append('created_at', this.form.brand);
+            var uri = this.$apiUrl + '/sparepart/' + this.updatedId;
             this.load = true
-            this.$http.post(uri,this.user).then(response =>{
+            this.$http.post(uri,this.sparepart).then(response =>{
                 this.snackbar = true; //mengaktifkan snackbar this.color = 'green'; //memberi warna snackbar
                 this.text = response.data.message; //memasukkan pesan ke snackbar
                 this.load = false;
                 this.dialog = false
-                this.getData(); //mengambil data user
+                this.getData(); //mengambil data sparepart
                 this.resetForm();
                 this.typeInput = 'new';
             }).catch(error =>{
@@ -219,7 +242,7 @@ export default {
     },
 
         deleteData(deleteId){
-            var uri=this.$apiUrl + '/user/' + deleteId;
+            var uri=this.$apiUrl + '/sparepart/' + deleteId;
             this.$http.delete(uri).then(response =>{
                 this.snackbar=true;
                 this.text=response.data.message;
